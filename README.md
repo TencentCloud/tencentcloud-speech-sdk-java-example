@@ -1,1 +1,1 @@
-# tencentcloud-speech-sdk-java-example
+Speech Java SDK Example
