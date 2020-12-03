@@ -42,12 +42,11 @@ public class LongTextTtsExample {
         //request.setPrimaryLanguage(2);
         //request.setSampleRate(null);
         //使用客户端client创建语音合成实例
-        final List<byte[]> result=new ArrayList<>();
         SpeechSynthesizer speechSynthesizer = client.newSpeechSynthesizer(request, new SpeechSynthesisListener(){
 
             @Override
             public void onComplete(SpeechSynthesisResponse response) {
-                result.add(response.getAudio());
+                Ttsutils.responsePcm2Wav(sampleRate, response.getAudio(), response.getSessionId());
             }
 
             @Override
@@ -77,19 +76,7 @@ public class LongTextTtsExample {
                 "　　我没有思索的从外套袋里抓出一大把铜元，交给巡警，说，“请你给他……”\n" +
                 "　　风全住了，路上还很静。我走着，一面想，几乎怕敢想到自己。以前的事姑且搁起，这一大把铜元又是什么意思？奖他么？我还能裁判车夫么？我不能回答自己。\n" +
                 "　　这事到了现在，还是时时记起。我因此也时时煞了苦痛，努力的要想到我自己。几年来的文治武力，在我早如幼小时候所读过的“子曰诗云”⑵一般，背不上半句了。独有这一件小事，却总是浮在我眼前，有时反更分明，教我惭愧，催我自新，并且增长我的勇气和希望。";
-        List<String> texts= LineSplitUtils.smartSplit(ttsText);
-        for (String item:texts) {
-            speechSynthesizer.synthesis(item);
-        }
-        Ttsutils.responsePcm2Wav(sampleRate, list2ByteArray(result),"result");
-    }
-
-    static byte[] list2ByteArray(List<byte[]> list){
-        byte[] array=new byte[0];
-        for(byte[] item:list){
-            array=ByteUtils.concat(array,item);
-        }
-        return array;
+        speechSynthesizer.synthesisLongText(ttsText);
     }
 
 }

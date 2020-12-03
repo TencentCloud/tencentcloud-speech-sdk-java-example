@@ -24,16 +24,19 @@ public class SpeechTtsExample {
 
     private static byte[] datas = new byte[0];
 
+
+    /**
+     * 语音合成
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
-        GlobalConfig.ifLog = true;
         //从配置文件读取密钥
         Properties props = new Properties();
         props.load(new FileInputStream("../../config.properties"));
         String appId = props.getProperty("appId");
         String secretId = props.getProperty("secretId");
         String secretKey = props.getProperty("secretKey");
-
-
         //创建SpeechSynthesizerClient实例，目前是单例
         SpeechClient client = SpeechClient.newInstance(appId, secretId, secretKey);
         //初始化SpeechSynthesizerRequest，SpeechSynthesizerRequest包含请求参数
@@ -71,7 +74,8 @@ public class SpeechTtsExample {
                     System.out.println("OPUS:" + response.getSessionId() + " length:" + response.getAudio().length);
                 }
             }
-            System.out.println("结束：" + response.getSuccess() + " " + response.getCode() + " " + response.getMessage() + " " + response.getEnd());
+            System.out.println("结束：" + response.getSuccess() + " " + response.getCode()
+                    + " " + response.getMessage() + " " + response.getEnd());
         }
 
         //语音合成的语音二进制数据
