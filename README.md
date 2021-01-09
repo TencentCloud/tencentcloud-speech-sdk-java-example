@@ -1,1 +1,0 @@
-Speech Java SDK Example

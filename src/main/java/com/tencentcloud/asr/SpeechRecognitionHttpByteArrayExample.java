@@ -16,7 +16,6 @@ import com.tencent.core.utils.JsonUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -59,7 +58,7 @@ public class SpeechRecognitionHttpByteArrayExample {
                         request.setCutLength(6400);
                         //request.setNeedVad(0);
                         //设置引擎
-                        request.setEngineModelType("8k_zh_finance0");
+                        request.setEngineModelType("8k_zh_finance");
                         //request.setVoiceFormat(8);
                         //设置语音编码方式 语音编码方式，可选，默认值为 4。1：wav(pcm)；4：speex(sp)；6：silk；8：mp3；10：opus（opus 格式音频流封装说明
                         request.setVoiceFormat(1);

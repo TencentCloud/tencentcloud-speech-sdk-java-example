@@ -45,13 +45,11 @@ public class SpeechTtsExample {
         //request.setSampleRate(sampleRate);
         //request.setVolume(10);
         //request.setSpeed(2f);
-        //request.setVoiceType(null);
-        //request.setPrimaryLanguage(2);
-        //request.setSampleRate(null);
+        request.setVoiceType(101007);
         //使用客户端client创建语音合成实例
         SpeechSynthesizer speechSynthesizer = client.newSpeechSynthesizer(request, new MySpeechSynthesizerListener());
         //执行语音合成
-        String ttsText = "暖国的雨，向来没有变过冰冷的坚硬的灿烂的雪花。博识的人们觉得他单调，他自己也以为不幸否耶？江南的雪，可是滋润美艳之至了.";
+        String ttsText = "腾讯云语音合成测试";
         speechSynthesizer.synthesis(ttsText);
     }
 
@@ -65,6 +63,7 @@ public class SpeechTtsExample {
             System.out.println("onComplete");
             if (response.getSuccess()) {
                 //根据具体的业务选择逻辑处理
+                //Ttsutils.saveResponseToFile(response.getAudio(),"./111.mp3");
                 if ("pcm".equals(codec)) {
                     //pcm 转 wav
                     Ttsutils.responsePcm2Wav(sampleRate, response.getAudio(), response.getSessionId());

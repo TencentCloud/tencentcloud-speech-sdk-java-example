@@ -23,7 +23,6 @@ public class SpeechRecognitionHttpExample extends SpeechRecognition {
     public static void main(String[] args) throws InterruptedException, IOException {
         Boolean runOnce = true;
         int threadNum = 10;
-        //GlobalConfig.ifLog = true;
         SpeechRecognitionSysConfig.requestWay = AsrConstant.RequestWay.Http;//配置请求方式 默认为websocket
         SpeechClient client = getSpeechClient();
         if (runOnce) {
