@@ -22,5 +22,5 @@
 ```
 
 ## 示例
-参见[example](https://github.com/TencentCloud/tencentcloud-speech-sdk-java-example/tree/main/src/main/java/com/tencentcloud)
+参见该项目[example](https://github.com/TencentCloud/tencentcloud-speech-sdk-java-example/tree/main/src/main/java/com/tencentcloud)
 
