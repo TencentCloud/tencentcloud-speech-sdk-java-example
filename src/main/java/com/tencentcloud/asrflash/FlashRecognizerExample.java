@@ -13,7 +13,12 @@ import com.tencent.core.utils.JsonUtil;
  */
 public class FlashRecognizerExample {
 
-    public static void main(String[] args){
+    /**
+     * 录音识别极速版 demo
+     *
+     * @param args args
+     */
+    public static void main(String[] args) {
         boolean once = true;
         //注意：使用前务必先填写APPID、SECRET_ID、SECRET_KEY，否则会无法运行！！！
         String APPID = "your appid";

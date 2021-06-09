@@ -15,15 +15,21 @@ import java.util.Properties;
  * 异步版语音识别
  *
  * 依赖sdk https://github.com/TencentCloud/tencentcloud-sdk-java
- *  <dependency>
- *       <groupId>com.tencentcloudapi</groupId>
- *       <artifactId>tencentcloud-sdk-java</artifactId>
- *       <version>最新版本</version>
- *   </dependency>
+ * <dependency>
+ * <groupId>com.tencentcloudapi</groupId>
+ * <artifactId>tencentcloud-sdk-java</artifactId>
+ * <version>最新版本</version>
+ * </dependency>
  */
 public class SpeechAsyncRecognizerExample {
 
 
+    /**
+     * 异步版语音识别 demo
+     *
+     * @param args args
+     * @throws IOException IOException
+     */
     public static void main(String[] args) throws IOException {
         Properties props = new Properties();
         //从配置文件读取密钥
