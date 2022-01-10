@@ -1,14 +1,14 @@
 package com.tencentcloud.tts;
 
 
-import com.tencent.tts.v20190823.TtsClient;
-import com.tencent.tts.v20190823.models.CreateTtsTaskRequest;
-import com.tencent.tts.v20190823.models.CreateTtsTaskResponse;
-import com.tencent.tts.v20190823.models.DescribeTtsTaskStatusRequest;
-import com.tencent.tts.v20190823.models.DescribeTtsTaskStatusResponse;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
+import com.tencentcloudapi.tts.v20190823.TtsClient;
+import com.tencentcloudapi.tts.v20190823.models.CreateTtsTaskRequest;
+import com.tencentcloudapi.tts.v20190823.models.CreateTtsTaskResponse;
+import com.tencentcloudapi.tts.v20190823.models.DescribeTtsTaskStatusRequest;
+import com.tencentcloudapi.tts.v20190823.models.DescribeTtsTaskStatusResponse;
 
 /**
  * 长文本语音合成案例

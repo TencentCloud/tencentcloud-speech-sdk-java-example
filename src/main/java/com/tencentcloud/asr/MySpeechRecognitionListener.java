@@ -33,8 +33,11 @@ public class MySpeechRecognitionListener extends SpeechRecognitionListener {
 
     @Override
     public void onFail(SpeechRecognitionResponse response) {
-        System.out.println("--------------");
-        System.out.println("--------------错误:" + JsonUtil.toJson(response));
-        System.out.println("--------------");
+        System.out.println("错误:" + JsonUtil.toJson(response));
+    }
+
+    @Override
+    public void onMessage(SpeechRecognitionResponse response) {
+        System.out.println("onMessage:" + JsonUtil.toJson(response));
     }
 }
