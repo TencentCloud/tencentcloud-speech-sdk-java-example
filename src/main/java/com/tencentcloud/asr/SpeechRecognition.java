@@ -3,8 +3,10 @@ package com.tencentcloud.asr;
 
 import com.tencent.SpeechClient;
 import com.tencent.asr.constant.AsrConstant;
+import com.tencent.asr.constant.AsrConstant.RequestWay;
 import com.tencent.asr.model.SpeechRecognitionRequest;
 import com.tencent.asr.model.SpeechRecognitionSysConfig;
+import com.tencent.asr.model.SpeechWebsocketConfig;
 import com.tencent.asr.service.SpeechRecognizer;
 import com.tencent.core.utils.ByteUtils;
 
@@ -13,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executors;
 
 public class SpeechRecognition {
 
@@ -36,7 +39,7 @@ public class SpeechRecognition {
     /**
      * 并发
      *
-     * @param client    SpeechClient
+     * @param client SpeechClient
      * @param threadNum 线程数
      * @throws InterruptedException InterruptedException
      */
@@ -71,7 +74,8 @@ public class SpeechRecognition {
             SpeechRecognitionRequest request = SpeechRecognitionRequest.initialize();
             request.setEngineModelType("16k_zh"); //模型类型为必传参数，否则异常
             request.setVoiceFormat(1);  //指定音频格式
-            SpeechRecognizer speechWsRecognizer = client.newSpeechRecognizer(request, new MySpeechRecognitionListener());
+            SpeechRecognizer speechWsRecognizer = client
+                    .newSpeechRecognizer(request, new MySpeechRecognitionListener());
             //开始识别 调用start方法
             speechWsRecognizer.start();
             for (int i = 0; i < speechData.size(); i++) {
@@ -86,5 +90,25 @@ public class SpeechRecognition {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * SpeechWebsocketConfig 自定义配置信息
+     */
+    public static void resetConfigExample() throws IOException {
+        Properties props = new Properties();
+        //从配置文件读取密钥
+        props.load(new FileInputStream("../../config.properties"));
+        String appId = props.getProperty("appId");
+        String secretId = props.getProperty("secretId");
+        String secretKey = props.getProperty("secretKey");
+        // websocket使用okhttp框架实现，如需自定义相关配置可修改SpeechWebsocketConfig配置信息
+        // 具体配置见SpeechWebsocketConfig
+        SpeechWebsocketConfig config = SpeechWebsocketConfig.init();
+        config.setExecutorService(Executors.newFixedThreadPool(1)); //对应okhttpclient线程池
+        config.setWsMaxRequests(100); //对应okhttpclient maxRequests配置
+
+        SpeechClient speechClient = SpeechClient.newInstance(appId, secretId, secretKey, "", config);
+        runOnce(speechClient);
     }
 }

@@ -49,7 +49,7 @@ public class VirtualNumberExample {
         request.setSecretKey(secretKey);//必填
         request.setVoiceId(UUID.randomUUID().toString());//必填
         request.setVoiceFormat(12);//必填
-
+        request.setWaitTime(60);
         //初始化VirtualNumberRecognizer
         //一次识别对应一个VirtualNumberRecognizer 切勿重复使用
         //VirtualNumberServerConfig.getInstance()默认全局唯一，可自定义
@@ -60,7 +60,10 @@ public class VirtualNumberExample {
             recognizer.start();
             for (int i = 0; i < speechData.size(); i++) {
                 Thread.sleep(20);//模拟语音流
-                recognizer.write(speechData.get(i));
+                boolean end = recognizer.write(speechData.get(i));
+                if (end) {
+                    break;
+                }
             }
             recognizer.stop();
         } catch (Exception e) {
