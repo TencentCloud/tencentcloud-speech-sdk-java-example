@@ -74,6 +74,12 @@ public class SpeechRecognition {
             SpeechRecognitionRequest request = SpeechRecognitionRequest.initialize();
             request.setEngineModelType("16k_zh"); //模型类型为必传参数，否则异常
             request.setVoiceFormat(1);  //指定音频格式
+
+            //支持扩展参数 对于sdk未及时更新参数可通过扩展参数调用
+            //Map<String,Object> ext=new HashMap<>();
+            //ext.put("reinforce_hotword",1);
+            //request.setExtendsParam(ext);
+
             SpeechRecognizer speechWsRecognizer = client
                     .newSpeechRecognizer(request, new MySpeechRecognitionListener());
             //开始识别 调用start方法
