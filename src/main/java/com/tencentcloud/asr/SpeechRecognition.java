@@ -73,7 +73,7 @@ public class SpeechRecognition {
         //从配置文件读取密钥（可自行修改）
         Properties props = new Properties();
         //从配置文件读取密钥
-        props.load(new FileInputStream("../../config.properties"));
+        props.load(new FileInputStream("../../../config.properties"));
         String appId = props.getProperty("appId");
         String secretId = props.getProperty("secretId");
         String secretKey = props.getProperty("secretKey");
@@ -127,15 +127,17 @@ public class SpeechRecognition {
             SpeechRecognizer speechWsRecognizer = client
                     .newSpeechRecognizer(request, new MySpeechRecognitionListener());
             //开始识别 调用start方法
-            speechWsRecognizer.start();
-            for (int i = 0; i < speechData.size(); i++) {
-                //模拟音频间隔
-                Thread.sleep(SpeechRecognitionSysConfig.requestWay == AsrConstant.RequestWay.Http ? 200 : 20);
-                //发送数据
-                speechWsRecognizer.write(speechData.get(i));
+            boolean success = speechWsRecognizer.start();
+            if (success) {
+                for (int i = 0; i < speechData.size(); i++) {
+                    //模拟音频间隔
+                    Thread.sleep(SpeechRecognitionSysConfig.requestWay == AsrConstant.RequestWay.Http ? 200 : 20);
+                    //发送数据
+                    speechWsRecognizer.write(speechData.get(i));
+                }
+                //结束识别调用stop方法
+                speechWsRecognizer.stop();
             }
-            //结束识别调用stop方法
-            speechWsRecognizer.stop();
             fileInputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
