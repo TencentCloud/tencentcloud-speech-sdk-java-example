@@ -27,6 +27,7 @@ public class SpeechTtsExample {
 
     /**
      * 语音合成
+     *
      * @param args
      * @throws IOException
      */
@@ -47,7 +48,8 @@ public class SpeechTtsExample {
         //request.setSpeed(2f);
         request.setVoiceType(101007);
         //使用客户端client创建语音合成实例
-        SpeechSynthesizer speechSynthesizer = client.newSpeechSynthesizer(request, new MySpeechSynthesizerListener());
+        SpeechSynthesizer speechSynthesizer = client
+                .newSpeechSynthesizer(request, new MySpeechSynthesizerListener("test".concat(request.getCodec())));
         //执行语音合成
         String ttsText = "腾讯云语音合成测试";
         speechSynthesizer.synthesis(ttsText);
@@ -57,13 +59,19 @@ public class SpeechTtsExample {
     public static class MySpeechSynthesizerListener extends SpeechSynthesisListener {
 
         private AtomicInteger sessionId = new AtomicInteger(0);
+        private String fileName;
+
+        public MySpeechSynthesizerListener(String fileName) {
+            this.fileName = fileName;
+        }
+
 
         @Override
         public void onComplete(SpeechSynthesisResponse response) {
             System.out.println("onComplete");
             if (response.getSuccess()) {
                 //根据具体的业务选择逻辑处理
-                //Ttsutils.saveResponseToFile(response.getAudio(),"./111.mp3");
+                //Ttsutils.saveResponseToFile(response.getAudio(), this.fileName);
                 if ("pcm".equals(codec)) {
                     //pcm 转 wav
                     Ttsutils.responsePcm2Wav(sampleRate, response.getAudio(), response.getSessionId());
