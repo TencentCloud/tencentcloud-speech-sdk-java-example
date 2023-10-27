@@ -22,14 +22,14 @@ import java.util.UUID;
 public class VirtualNumberExample {
 
     public static void main(String[] args) throws IOException {
-        GlobalConfig.ifLog = false; //是否打印日志 用于问题排查 默认false
+        GlobalConfig.ifLog = true; //是否打印日志 用于问题排查 默认false
         //自定义日志拦截器 默认为sout
         //GlobalConfig.sdkLogInterceptor = new MySdkLogInterceptor();
 
         //密钥获取地址见README.md
         //配置文件读取密钥
         Properties props = new Properties();
-        props.load(new FileInputStream("../../config.properties"));
+        props.load(new FileInputStream("../../../config.properties"));
         String appId = props.getProperty("appId");
         String secretId = props.getProperty("secretId");
         String secretKey = props.getProperty("secretKey");
@@ -39,7 +39,7 @@ public class VirtualNumberExample {
         ExampleListener listener = new ExampleListener(listenerId);
 
         //读取音频数据,这里为了演示方便直接保存为字节数组
-        FileInputStream fileInputStream = new FileInputStream(new File("test.wav"));
+        FileInputStream fileInputStream = new FileInputStream(new File("test_wav/16k/16k.wav"));
         List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 640);
 
         // 初始化request
@@ -57,15 +57,19 @@ public class VirtualNumberExample {
                 .newVirtualNumberRecognizer(VirtualNumberServerConfig.getInstance(), request, listener);
         try {
             //开启连接 异常则抛出异常
-            recognizer.start();
-            for (int i = 0; i < speechData.size(); i++) {
-                Thread.sleep(20);//模拟语音流
-                boolean end = recognizer.write(speechData.get(i));
-                if (end) {
-                    break;
+            boolean code = recognizer.start();
+            if (code) {
+                for (int i = 0; i < speechData.size(); i++) {
+                    Thread.sleep(20);//模拟语音流
+                    boolean end = recognizer.write(speechData.get(i));
+                    if (end) {
+                        break;
+                    }
                 }
+                recognizer.stop();
+            }else{
+                System.out.println("false");
             }
-            recognizer.stop();
         } catch (Exception e) {
             e.printStackTrace();
         }

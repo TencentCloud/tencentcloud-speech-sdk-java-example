@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 实时语音合成websocket
@@ -77,7 +78,7 @@ public class SpeechWsExample {
         GlobalConfig.ifLog = true;
         //从配置文件读取密钥
         Properties props = new Properties();
-        props.load(new FileInputStream("../../config.properties"));
+        props.load(new FileInputStream("../../../config.properties"));
         String appId = props.getProperty("appId");
         String secretId = props.getProperty("secretId");
         String secretKey = props.getProperty("secretKey");
@@ -97,8 +98,11 @@ public class SpeechWsExample {
         request.setEmotionCategory("sad");
         request.setEmotionIntensity(100);
         request.setText("欢迎使用腾讯云实时语音合成,欢迎使用腾讯云实时语音,欢迎使用腾讯云实时语音,欢迎使用腾讯云实时语音");
-        SpeechWsSynthesisServerConfig c = SpeechWsSynthesisServerConfig.getInstance();
 
+        //全局唯一 保持单例
+        SpeechWsSynthesisServerConfig c = SpeechWsSynthesisServerConfig.getInstance();
+        c.setOnopenWaitTimeUnit(TimeUnit.MILLISECONDS);
+        c.setOnopenWaitTime(1000);
         //用于标识回调 自定义随机字符串
         String listenerId = UUID.randomUUID().toString();
         WsListener listener = new WsListener(listenerId, request.getCodec());

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
 /**
@@ -30,8 +31,10 @@ public class CustomizeAsrWsExample {
         //自定义日志拦截器
         GlobalConfig.sdkLogInterceptor = new SdkLogInterceptor();
         //SpeechRecognitionSysConfig语音识别全局默认配置文件,默认值可通过SpeechRecognitionSysConfig配置
+        //方法超时时间单位默认为秒
+        SpeechRecognitionSysConfig.wsMethodWaitTimeUnit= TimeUnit.MILLISECONDS;
         //speechWsRecognizer.start()方法执行超时时间单位为s,对应首包时延一般为百ms,具体根据网络情况而定，一般情况可不用调整
-        SpeechRecognitionSysConfig.wsStartMethodWait = 3;
+        SpeechRecognitionSysConfig.wsStartMethodWait = 1000;
         //speechWsRecognizer.stop()方法执行超时时间单位为s,对应尾包时延
         SpeechRecognitionSysConfig.wsStopMethodWait = 1;
         //OkHttpClient相关默认配置,可根据业务需要调整
@@ -61,7 +64,7 @@ public class CustomizeAsrWsExample {
         WsClientService wsClientService = new WsClientService(speechWebsocketConfig);
         //--------------------------------------------------------------------------------------------------
         //2.OkHttpClient初始化
-        //自己根据业务实现配置,可以自己控制OkHttpClient关闭，okHttpClient.dispatcher().executorService().shutdown();
+        //自己根据业务实现配置
         //OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
         // WsClientService wsClientService = new WsClientService(okHttpClient);
         //--------------------------------------------------------------------------------------------------

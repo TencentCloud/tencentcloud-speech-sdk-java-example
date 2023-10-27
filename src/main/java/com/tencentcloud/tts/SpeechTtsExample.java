@@ -3,6 +3,7 @@ package com.tencentcloud.tts;
 import com.tencent.SpeechClient;
 import com.tencent.core.model.GlobalConfig;
 import com.tencent.core.utils.ByteUtils;
+import com.tencent.core.utils.JsonUtil;
 import com.tencent.tts.model.*;
 import com.tencent.tts.service.SpeechSynthesisListener;
 import com.tencent.tts.service.SpeechSynthesizer;
@@ -13,6 +14,9 @@ import com.tencent.tts.utils.Ttsutils;
 import java.io.*;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 /**
  * 语音合成 example
@@ -36,7 +40,7 @@ public class SpeechTtsExample {
         Properties props = new Properties();
         props.load(new FileInputStream("../../config.properties"));
         String appId = props.getProperty("appId");
-        String secretId = props.getProperty("secretId");
+        String secretId = props.getProperty("secretId")+"00000";
         String secretKey = props.getProperty("secretKey");
         //创建SpeechSynthesizerClient实例，目前是单例
         SpeechClient client = SpeechClient.newInstance(appId, secretId, secretKey);
@@ -46,13 +50,31 @@ public class SpeechTtsExample {
         //request.setSampleRate(sampleRate);
         //request.setVolume(10);
         //request.setSpeed(2f);
-        request.setVoiceType(101007);
+        request.setVoiceType(301011);
+        request.setEmotionCategory("angry");
+        request.setEmotionIntensity(200);
         //使用客户端client创建语音合成实例
-        SpeechSynthesizer speechSynthesizer = client
-                .newSpeechSynthesizer(request, new MySpeechSynthesizerListener("test".concat(request.getCodec())));
-        //执行语音合成
-        String ttsText = "腾讯云语音合成测试";
-        speechSynthesizer.synthesis(ttsText);
+        for (int j = 0; j < 100; j++) {
+            for (int i = 0; i < 3; i++) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SpeechSynthesizer speechSynthesizer = client
+                                .newSpeechSynthesizer(request, new MySpeechSynthesizerListener("test".concat(request.getCodec())));
+                        //执行语音合成
+                        String ttsText = "腾讯云语音合成测试";
+                        speechSynthesizer.synthesis(ttsText);
+                    }
+                }).start();
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 
 
@@ -96,7 +118,7 @@ public class SpeechTtsExample {
 
         @Override
         public void onFail(SpeechSynthesisResponse response) {
-            System.out.println("onFail");
+            System.out.println("onFail" + JsonUtil.toJson(response));
         }
     }
 
