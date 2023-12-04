@@ -34,12 +34,12 @@ public class CustomizeAsrWsExample {
         //方法超时时间单位默认为秒
         SpeechRecognitionSysConfig.wsMethodWaitTimeUnit= TimeUnit.MILLISECONDS;
         //speechWsRecognizer.start()方法执行超时时间单位为s,对应首包时延一般为百ms,具体根据网络情况而定，一般情况可不用调整
-        SpeechRecognitionSysConfig.wsStartMethodWait = 1000;
+        SpeechRecognitionSysConfig.wsStartMethodWait = 800;
         //speechWsRecognizer.stop()方法执行超时时间单位为s,对应尾包时延
-        SpeechRecognitionSysConfig.wsStopMethodWait = 1;
+        SpeechRecognitionSysConfig.wsStopMethodWait = 1000;
         //OkHttpClient相关默认配置,可根据业务需要调整
         //设置socket连接超时时间
-        SpeechRecognitionSysConfig.wsConnectTimeOut = 3000;
+        SpeechRecognitionSysConfig.wsConnectTimeOut = 500;
         //设置数据写入连接超时时间
         SpeechRecognitionSysConfig.wsWriteTimeOut = 1000;
         //设置数据读取连接超时时间
@@ -87,7 +87,7 @@ public class CustomizeAsrWsExample {
             String secretKey = props.getProperty("secretKey");
 
             Credential credential = Credential.builder().appid(appId).secretKey(secretKey).secretId(secretId).build();
-            int retryNum = 2;
+            int retryNum = 1;
             for (int i = 0; i < retryNum; i++) {//错误重试
                 MySpeechRecognitionListener listener = new MySpeechRecognitionListener();
                 SpeechRecognizer speechWsRecognizer = SpeechClient

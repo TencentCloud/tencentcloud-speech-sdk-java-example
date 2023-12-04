@@ -40,7 +40,7 @@ public class VirtualNumberExample {
 
         //读取音频数据,这里为了演示方便直接保存为字节数组
         FileInputStream fileInputStream = new FileInputStream(new File("test_wav/16k/16k.wav"));
-        List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 640);
+        List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 6400);
 
         // 初始化request
         VirtualNumberRequest request = new VirtualNumberRequest();
@@ -60,7 +60,7 @@ public class VirtualNumberExample {
             boolean code = recognizer.start();
             if (code) {
                 for (int i = 0; i < speechData.size(); i++) {
-                    Thread.sleep(20);//模拟语音流
+                    Thread.sleep(200);//模拟语音流
                     boolean end = recognizer.write(speechData.get(i));
                     if (end) {
                         break;
