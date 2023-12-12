@@ -38,9 +38,9 @@ public class SpeechTtsExample {
     public static void main(String[] args) throws IOException {
         //从配置文件读取密钥
         Properties props = new Properties();
-        props.load(new FileInputStream("../../config.properties"));
+        props.load(new FileInputStream("../config.properties"));
         String appId = props.getProperty("appId");
-        String secretId = props.getProperty("secretId")+"00000";
+        String secretId = props.getProperty("secretId");
         String secretKey = props.getProperty("secretKey");
         //创建SpeechSynthesizerClient实例，目前是单例
         SpeechClient client = SpeechClient.newInstance(appId, secretId, secretKey);
@@ -50,30 +50,15 @@ public class SpeechTtsExample {
         //request.setSampleRate(sampleRate);
         //request.setVolume(10);
         //request.setSpeed(2f);
-        request.setVoiceType(301011);
-        request.setEmotionCategory("angry");
-        request.setEmotionIntensity(200);
+        request.setVoiceType(101013);
+        //request.setEmotionCategory("angry");
+        //request.setEmotionIntensity(200);
         //使用客户端client创建语音合成实例
-        for (int j = 0; j < 100; j++) {
-            for (int i = 0; i < 3; i++) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        SpeechSynthesizer speechSynthesizer = client
-                                .newSpeechSynthesizer(request, new MySpeechSynthesizerListener("test".concat(request.getCodec())));
-                        //执行语音合成
-                        String ttsText = "腾讯云语音合成测试";
-                        speechSynthesizer.synthesis(ttsText);
-                    }
-                }).start();
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }
+        SpeechSynthesizer speechSynthesizer = client
+                .newSpeechSynthesizer(request, new MySpeechSynthesizerListener("test".concat(request.getCodec())));
+        //执行语音合成
+        String ttsText = "腾讯云语音合成测试";
+        speechSynthesizer.synthesis(ttsText);
 
     }
 
