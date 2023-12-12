@@ -13,17 +13,20 @@ import com.tencent.asr.service.WsClientService;
 import com.tencent.core.model.GlobalConfig;
 import com.tencent.core.service.SdkLogInterceptor;
 import com.tencent.core.utils.ByteUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 
 /**
  * asr websocket自定义配置
  */
 public class CustomizeAsrWsExample {
+    private static WsClientService wsClientService;
 
     static {
         //是否打印日志
@@ -32,7 +35,7 @@ public class CustomizeAsrWsExample {
         GlobalConfig.sdkLogInterceptor = new SdkLogInterceptor();
         //SpeechRecognitionSysConfig语音识别全局默认配置文件,默认值可通过SpeechRecognitionSysConfig配置
         //方法超时时间单位默认为秒
-        SpeechRecognitionSysConfig.wsMethodWaitTimeUnit= TimeUnit.MILLISECONDS;
+        SpeechRecognitionSysConfig.wsMethodWaitTimeUnit = TimeUnit.MILLISECONDS;
         //speechWsRecognizer.start()方法执行超时时间单位为s,对应首包时延一般为百ms,具体根据网络情况而定，一般情况可不用调整
         SpeechRecognitionSysConfig.wsStartMethodWait = 800;
         //speechWsRecognizer.stop()方法执行超时时间单位为s,对应尾包时延
@@ -50,10 +53,9 @@ public class CustomizeAsrWsExample {
         SpeechRecognitionSysConfig.wsMaxIdleConnections = 200;
         //当前okhttpclient实例最大的并发请求数
         SpeechRecognitionSysConfig.wsMaxRequests = 10;
-    }
 
-    public static void main(String[] args) {
-        //建议根据业务自定义OkHttpClient相关配置，目前支持两种初始化方法  注意⚠️WsClientService建议全局唯一
+        //WsClientService 包含两种创建方式
+        // 建议根据业务自定义OkHttpClient相关配置，目前支持两种初始化方法  注意⚠️WsClientService建议全局唯一
         //--------------------------------------------------------------------------------------------------
         //1.配置文件初始化依赖SpeechWebsocketConfig配置
         //SpeechWebsocketConfig.init()方法使用SpeechRecognitionSysConfig默认值初始化
@@ -61,13 +63,16 @@ public class CustomizeAsrWsExample {
         //如下可自定义参数，具体见类
         //speechWebsocketConfig.setWsConnectTimeOut(3000);
         //speechWebsocketConfig.setExecutorService(Executors.newFixedThreadPool(1));
-        WsClientService wsClientService = new WsClientService(speechWebsocketConfig);
+        wsClientService = new WsClientService(speechWebsocketConfig);
         //--------------------------------------------------------------------------------------------------
         //2.OkHttpClient初始化
         //自己根据业务实现配置
         //OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
         // WsClientService wsClientService = new WsClientService(okHttpClient);
         //--------------------------------------------------------------------------------------------------
+    }
+
+    public static void main(String[] args) {
 
         try {
             //案例使用文件模拟实时获取语音流，用户使用可直接调用write传入字节数据
@@ -106,6 +111,7 @@ public class CustomizeAsrWsExample {
 
     /**
      * 语音识别
+     *
      * @param speechWsRecognizer
      * @param speechData
      * @return
