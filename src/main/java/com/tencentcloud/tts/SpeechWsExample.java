@@ -71,6 +71,23 @@ public class SpeechWsExample {
         }
     }
 
+    //SpeechWsSynthesisServerConfig 全局唯一 保持单例
+    private static SpeechWsSynthesisServerConfig c = SpeechWsSynthesisServerConfig.getInstance();
+
+    static {
+        //c.setConnectTime(5000); 如果网络较差可调大连接超时时间
+
+        /*如需自定义okhttp配置
+        ExecutorService treadPool = new ThreadPoolExecutor(10, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue(), Util.threadFactory("OkHttp Dispatcher", false));
+        OkHttpClient.Builder okHttpBuilder = new OkHttpClient.Builder();
+        okHttpBuilder.dispatcher(new Dispatcher(treadPool)).connectionPool(new ConnectionPool(600, 300000L, TimeUnit.MILLISECONDS)).writeTimeout(60000L, TimeUnit.MILLISECONDS).readTimeout(60000L, TimeUnit.MILLISECONDS).connectTimeout(500L, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true);
+        OkHttpClient client = okHttpBuilder.build();
+        client.dispatcher().setMaxRequests(500);
+        client.dispatcher().setMaxRequestsPerHost(5);
+        c.setClient(client);
+        */
+    }
+
     public static void main(String[] args) throws IOException {
         GlobalConfig.ifLog = true;
         //从配置文件读取密钥
@@ -95,11 +112,6 @@ public class SpeechWsExample {
         request.setEmotionCategory("sad");
         request.setEmotionIntensity(100);
         request.setText("欢迎使用腾讯云实时语音合成,欢迎使用腾讯云实时语音,欢迎使用腾讯云实时语音,欢迎使用腾讯云实时语音");
-
-        //SpeechWsSynthesisServerConfig 全局唯一 保持单例
-        SpeechWsSynthesisServerConfig c = SpeechWsSynthesisServerConfig.getInstance();
-        //c.setConnectTime(5000); 如果网络较差可调大连接超时时间
-
         //用于标识回调 自定义随机字符串
         String listenerId = UUID.randomUUID().toString();
         WsListener listener = new WsListener(listenerId, request.getCodec());
