@@ -77,10 +77,15 @@ public class SpeechWsExample {
     static {
         //c.setConnectTime(5000); 如果网络较差可调大连接超时时间
 
-        /*如需自定义okhttp配置
+
+        /*
+        目前默认配置如下，如果默认配置不能满足业务需求，建议根据业务要求进行调整
+        1.如果对资源敏感可自定义线程池配置
+        2.如果对网络敏感可对读写超时、连接超时进行调整
+
         ExecutorService treadPool = new ThreadPoolExecutor(10, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue(), Util.threadFactory("OkHttp Dispatcher", false));
         OkHttpClient.Builder okHttpBuilder = new OkHttpClient.Builder();
-        okHttpBuilder.dispatcher(new Dispatcher(treadPool)).connectionPool(new ConnectionPool(600, 300000L, TimeUnit.MILLISECONDS)).writeTimeout(60000L, TimeUnit.MILLISECONDS).readTimeout(60000L, TimeUnit.MILLISECONDS).connectTimeout(500L, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true);
+        okHttpBuilder.dispatcher(new Dispatcher(treadPool)).connectionPool(new ConnectionPool(600, 300000L, TimeUnit.MILLISECONDS)).writeTimeout(60000L, TimeUnit.MILLISECONDS).readTimeout(60000L, TimeUnit.MILLISECONDS).connectTimeout(1000L, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true);
         OkHttpClient client = okHttpBuilder.build();
         client.dispatcher().setMaxRequests(500);
         client.dispatcher().setMaxRequestsPerHost(5);
