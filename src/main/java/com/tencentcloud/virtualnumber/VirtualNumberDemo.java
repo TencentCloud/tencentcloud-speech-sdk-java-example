@@ -1,10 +1,15 @@
-package com.tencentcloud.asrv2;
+package com.tencentcloud.virtualnumber;
 
 import com.google.gson.Gson;
 import com.tencent.asrv2.*;
 import com.tencent.core.utils.ByteUtils;
 import com.tencent.core.ws.Credential;
 import com.tencent.core.ws.SpeechClient;
+import com.tencent.core.ws.StateMachine;
+import com.tencent.virtualnumber.VirtualNumberRecognizer;
+import com.tencent.virtualnumber.VirtualNumberRecognizerListener;
+import com.tencent.virtualnumber.VirtualNumberRecognizerRequest;
+import com.tencent.virtualnumber.VirtualNumberRecognizerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +21,11 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * 实时识别示例
+ * 虚拟号示例
  */
-public class RtDemo {
+public class VirtualNumberDemo {
 
-    static Logger logger = LoggerFactory.getLogger(RtDemo.class);
+    static Logger logger = LoggerFactory.getLogger(VirtualNumberDemo.class);
 
     //SpeechClient应用全局创建一个即可,生命周期可和整个应用保持一致
     static SpeechClient proxy = new SpeechClient(AsrConstant.DEFAULT_RT_REQ_URL);
@@ -37,71 +42,60 @@ public class RtDemo {
 
     public static void process(String appId, String secretId, String secretKey) {
         Credential credential = new Credential(appId, secretId, secretKey);
-        SpeechRecognizerRequest request = SpeechRecognizerRequest.init();
-        request.setEngineModelType("8k_zh");
-        request.setVoiceFormat(12);
+        VirtualNumberRecognizerRequest request = new VirtualNumberRecognizerRequest();
+        request.setVoiceFormat(12);//必填
+        request.setWaitTime(60);
         request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，遇到问题需要提供该值方便服务端排查
         // request.set("hotword_list", "腾讯云|10,语音识别|5,ASR|11"); //sdk暂未支持参数，可通过该方法设置
         logger.debug("voice_id:{}", request.getVoiceId());
-        SpeechRecognizerListener listener = new SpeechRecognizerListener() {
+        VirtualNumberRecognizerListener listener = new VirtualNumberRecognizerListener() {
             @Override
-            public void onRecognitionStart(SpeechRecognizerResponse response) {//首包回调
+            public void onRecognitionStart(VirtualNumberRecognizerResponse response) {//首包回调
                 logger.info("{} voice_id:{},{}", "onRecognitionStart", response.getVoiceId(), new Gson().toJson(response));
             }
 
             @Override
-            public void onSentenceBegin(SpeechRecognizerResponse response) {//一段话开始识别 slice_type=0
-                logger.info("{} voice_id:{},{}", "onSentenceBegin", response.getVoiceId(), new Gson().toJson(response));
-            }
-
-            @Override
-            public void onRecognitionResultChange(SpeechRecognizerResponse response) {//一段话识别中，slice_type=1,voice_text_str 为非稳态结果(该段识别结果还可能变化)
-                logger.info(" {} voice_id:{},{}", "onRecognitionResultChange", response.getVoiceId(), new Gson().toJson(response));
-            }
-
-            @Override
-            public void onSentenceEnd(SpeechRecognizerResponse response) {//一段话识别结束，slice_type=2,voice_text_str 为稳态结果(该段识别结果不再变化)
-                logger.info("{} voice_id:{},{}", "onSentenceEnd", response.getVoiceId(), new Gson().toJson(response));
-            }
-
-            @Override
-            public void onRecognitionComplete(SpeechRecognizerResponse response) {//识别完成回调 即final=1
+            public void onRecognitionComplete(VirtualNumberRecognizerResponse response) {//识别完成回调 即final=1
                 logger.info("{} voice_id:{},{}", "onRecognitionComplete", response.getVoiceId(), new Gson().toJson(response));
             }
 
             @Override
-            public void onFail(SpeechRecognizerResponse response) {//失败回调
+            public void onFail(VirtualNumberRecognizerResponse response) {//失败回调
                 logger.info("{} voice_id:{},{}", "onFail", response.getVoiceId(), new Gson().toJson(response));
             }
 
             @Override
-            public void onMessage(SpeechRecognizerResponse response) {//所有消息都会回调该方法
+            public void onMessage(VirtualNumberRecognizerResponse response) {//所有消息都会回调该方法
                 logger.info("{} voice_id:{},{}", "onMessage", response.getVoiceId(), new Gson().toJson(response));
             }
         };
-        SpeechRecognizer speechRecognizer = null;
+        VirtualNumberRecognizer recognizer = null;
         try {
-            FileInputStream fileInputStream = new FileInputStream(new File("test_wav/8k/8k_19s.wav"));
+            FileInputStream fileInputStream = new FileInputStream(new File("test_wav/16k/16k_30s..wav"));
             List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 640);
-            speechRecognizer = new SpeechRecognizer(proxy, credential, request, listener);
+            recognizer = new VirtualNumberRecognizer(proxy, credential, request, listener);
             long currentTimeMillis = System.currentTimeMillis();
-            speechRecognizer.start();
-            logger.info("speechRecognizer start latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
+            recognizer.start();
+            logger.info("recognizer start latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
             for (int i = 0; i < speechData.size(); i++) {
+                //如果已经识别出结果则终止发送数据
+                if (recognizer.getState() == StateMachine.State.STATE_CLOSED) {
+                    break;
+                }
                 //发送数据
-                speechRecognizer.write(speechData.get(i));
+                recognizer.write(speechData.get(i));
                 //模拟音频间隔
                 Thread.sleep(20);
             }
             currentTimeMillis = System.currentTimeMillis();
-            speechRecognizer.stop();
-            logger.info("speechRecognizer stop latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
+            recognizer.stop();
+            logger.info("recognizer stop latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
 
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
-            if (speechRecognizer != null) {
-                speechRecognizer.close(); //关闭连接
+            if (recognizer != null) {
+                recognizer.close(); //关闭连接
             }
         }
     }
