@@ -8,10 +8,7 @@ import com.tencent.tts.utils.Ttsutils;
 import com.tencent.ttsv2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -24,12 +21,10 @@ public class TTSWsDemo {
     //SpeechClient应用全局创建一个即可,生命周期可和整个应用保持一致
     static SpeechClient proxy = new SpeechClient(TtsConstant.DEFAULT_TTS_REQ_URL);
 
-    public static void main(String[] args) throws IOException {
-        Properties props = new Properties();
-        props.load(new FileInputStream("../config.properties"));
-        String appId = props.getProperty("appId");
-        String secretId = props.getProperty("secretId");
-        String secretKey = props.getProperty("secretKey");
+    public static void main(String[] args) {
+        String appId = "your appid";
+        String secretId = "your secretId";
+        String secretKey = "your secretKey";
         process(appId, secretId, secretKey);
         proxy.shutdown();
     }

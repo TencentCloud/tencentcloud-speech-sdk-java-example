@@ -31,12 +31,9 @@ public class SpeechAsyncRecognizerExample {
      * @throws IOException IOException
      */
     public static void main(String[] args) throws IOException {
-        Properties props = new Properties();
-        //从配置文件读取密钥
-        props.load(new FileInputStream("../../config.properties"));
-        String appId = props.getProperty("appId");
-        String secretId = props.getProperty("secretId");
-        String secretKey = props.getProperty("secretKey");
+        String appId = "your appid";
+        String secretId = "your secretId";
+        String secretKey = "your secretKey";
 
         //配置请求参数
         CreateAsyncRecognitionTaskRequest req = new CreateAsyncRecognitionTaskRequest();

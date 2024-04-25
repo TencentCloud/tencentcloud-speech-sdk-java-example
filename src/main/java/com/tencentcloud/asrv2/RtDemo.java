@@ -10,9 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -25,12 +23,10 @@ public class RtDemo {
     //SpeechClient应用全局创建一个即可,生命周期可和整个应用保持一致
     static SpeechClient proxy = new SpeechClient(AsrConstant.DEFAULT_RT_REQ_URL);
 
-    public static void main(String[] args) throws IOException {
-        Properties props = new Properties();
-        props.load(new FileInputStream("../config.properties"));
-        String appId = props.getProperty("appId");
-        String secretId = props.getProperty("secretId");
-        String secretKey = props.getProperty("secretKey");
+    public static void main(String[] args) {
+        String appId = "your appid";
+        String secretId = "your secretId";
+        String secretKey = "your secretKey";
         process(appId, secretId, secretKey);
         proxy.shutdown();
     }
