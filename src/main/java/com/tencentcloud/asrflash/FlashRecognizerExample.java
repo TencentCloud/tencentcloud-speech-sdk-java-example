@@ -20,8 +20,10 @@ public class FlashRecognizerExample {
      */
     public static void main(String[] args) {
         boolean once = true;
+        //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
+        //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
         //注意：使用前务必先填写APPID、SECRET_ID、SECRET_KEY，否则会无法运行！！！
-        String APPID = "your appid";
+        String APPID = "your_appid";
         String SECRET_ID = "your secretid";
         String SECRET_KEY = "your secretkey";
 

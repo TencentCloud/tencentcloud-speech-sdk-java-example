@@ -22,7 +22,9 @@ public class TTSWsDemo {
     static SpeechClient proxy = new SpeechClient(TtsConstant.DEFAULT_TTS_REQ_URL);
 
     public static void main(String[] args) {
-        String appId = "your appid";
+        //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
+        //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
+        String appId = "your_appid";
         String secretId = "your secretId";
         String secretKey = "your secretKey";
         process(appId, secretId, secretKey);
@@ -41,10 +43,10 @@ public class TTSWsDemo {
         request.setEnableSubtitle(true);
         request.setEmotionCategory("happy");
         request.setEmotionIntensity(100);
-        request.setSessionId(UUID.randomUUID().toString());//sessionId，遇到问题需要提供该值方便服务端排查
+        request.setSessionId(UUID.randomUUID().toString());//sessionId，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
         request.set("SegmentRate", 0); //sdk暂未支持参数，可通过该方法设置
         logger.debug("session_id:{}", request.getSessionId());
-        SpeechSynthesizerListener listener = new SpeechSynthesizerListener() {
+        SpeechSynthesizerListener listener = new SpeechSynthesizerListener() {//tips：回调方法中应该避免进行耗时操作，如果有耗时操作建议进行异步处理否则会影响websocket请求处理
             byte[] audio = new byte[0];
 
             @Override

@@ -24,7 +24,9 @@ public class OralEvalDemo {
     static SpeechClient proxy = new SpeechClient(OralEvalConstant.DEFAULT_ORAL_EVAL_REQ_URL);
 
     public static void main(String[] args) {
-        String appId = "your appid";
+        //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
+        //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
+        String appId = "your_appid";
         String secretId = "your secretId";
         String secretKey = "your secretKey";
         process(appId, secretId, secretKey);
@@ -41,10 +43,10 @@ public class OralEvalDemo {
         request.setEvalMode(1);
         request.setKeyword("明月");
         request.setSentenceInfoEnabled(1);
-        request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，遇到问题需要提供该值方便服务端排查
+        request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
         // request.set("voice_id", UUID.randomUUID().toString()); //sdk暂未支持参数，可通过该方法设置
         logger.debug("voice_id:{}", request.getVoiceId());
-        OralEvaluationListener listener = new OralEvaluationListener() {
+        OralEvaluationListener listener = new OralEvaluationListener() {//tips：回调方法中应该避免进行耗时操作，如果有耗时操作建议进行异步处理否则会影响websocket请求处理
             @Override
             public void OnIntermediateResults(OralEvaluationResponse response) {//评测中回调
                 logger.info("{} voice_id:{},{}", "OnIntermediateResults", response.getVoiceId(), new Gson().toJson(response));
