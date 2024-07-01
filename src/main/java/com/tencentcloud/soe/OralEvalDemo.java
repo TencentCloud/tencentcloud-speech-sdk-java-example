@@ -29,12 +29,15 @@ public class OralEvalDemo {
         String appId = "your_appid";
         String secretId = "your secretId";
         String secretKey = "your secretKey";
-        process(appId, secretId, secretKey);
+        // 只有临时秘钥鉴权需要
+        String token = "";
+        process(appId, secretId, secretKey, token);
         proxy.shutdown();
     }
 
-    public static void process(String appId, String secretId, String secretKey) {
+    public static void process(String appId, String secretId, String secretKey, String token) {
         Credential credential = new Credential(appId, secretId, secretKey);
+        credential.setToken(token);
         OralEvaluationRequest request = new OralEvaluationRequest();
         request.setVoiceFormat(1);
         request.setRefText("床前明月光");
@@ -74,7 +77,7 @@ public class OralEvalDemo {
         };
         OralEvaluator oralEvaluator = null;
         try {
-            FileInputStream fileInputStream = new FileInputStream(new File("test_wav/16k/16k_zh_5s.wav"));
+            FileInputStream fileInputStream = new FileInputStream(new File("test_wav/16k/16k.wav"));
             List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 640);
             oralEvaluator = new OralEvaluator(proxy, credential, request, listener);
             long currentTimeMillis = System.currentTimeMillis();
