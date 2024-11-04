@@ -21,3 +21,42 @@
 </dependency>
 ```
 
+## 常见问题：
+
+1.ASR、TTS 、SOE配置代理
+
+本示例为soe示例，其他业务类似。
+```
+nginx配置正向代理参考（注：仅供参考，具体根据业务自行调整）
+server {
+listen       80;
+location / {
+       proxy_pass https://soe.cloud.tencent.com; #替换为使用业务域名
+       proxy_redirect off;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header Upgrade $http_upgrade;
+       }
+}
+```
+
+```
+static {
+ OralEvalConstant.DEFAULT_ORAL_EVAL_REQ_URL = "ws://127.0.0.1:80/soe/api/"; //ip port替换为自己的代理地址 /soe/api/ 替换为使用业务后缀
+}
+static SpeechClient proxy = new SpeechClient(OralEvalConstant.DEFAULT_ORAL_EVAL_REQ_URL);
+```
+
+2.出现timeout after %d ms waiting for stop错误信息
+
+```
+synthesizer.stop();// 由于stop方法执行超时出现该错误，可通过synthesizer.stop(60000); 调整stop方法超时时间来避免
+```
+
+3.调整连接失败重试次数
+```
+static {
+SpeechClient.connectMaxTryTimes=3; //失败重试次数
+}
+```

@@ -28,16 +28,17 @@ public class FlashRecognizerExample {
         String SECRET_KEY = "your secretkey";
 
         Credential credential = Credential.builder().secretId(SECRET_ID).secretKey(SECRET_KEY).build();
-        FlashRecognizer recognizer = SpeechClient.newFlashRecognizer(APPID, credential);
+
         if (once) {
-            runOnce(recognizer);
+            runOnce(APPID,credential);
         } else {
-            runConcurrency(recognizer, 10);
+            runConcurrency(APPID,credential, 10);
         }
 
     }
 
-    public static void runOnce(FlashRecognizer recognizer) {
+    public static void runOnce(String  APPID,Credential credential) {
+        FlashRecognizer recognizer = SpeechClient.newFlashRecognizer(APPID, credential);
         byte[] data = ByteUtils.inputStream2ByteArray("test_wav/16k/16k.wav");
         //传入识别语音数据同步获取结果
         FlashRecognitionRequest recognitionRequest = FlashRecognitionRequest.initialize();
@@ -54,12 +55,12 @@ public class FlashRecognizerExample {
         System.out.println(JsonUtil.toJson(response));
     }
 
-    public static void runConcurrency(final FlashRecognizer recognizer, int threadNum) {
+    public static void runConcurrency(String  APPID,Credential credential, int threadNum) {
         for (int i = 0; i < threadNum; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    runOnce(recognizer);
+                    runOnce(APPID,credential);
                 }
             }).start();
         }
