@@ -46,6 +46,7 @@ public class OralEvalDemo {
         request.setEvalMode(1);
         request.setKeyword("明月");
         request.setSentenceInfoEnabled(1);
+        request.setRecMode(1);
         request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
         // request.set("voice_id", UUID.randomUUID().toString()); //sdk暂未支持参数，可通过该方法设置
         logger.debug("voice_id:{}", request.getVoiceId());
@@ -78,7 +79,7 @@ public class OralEvalDemo {
         OralEvaluator oralEvaluator = null;
         try {
             FileInputStream fileInputStream = new FileInputStream(new File("test_wav/16k/16k.wav"));
-            List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 640);
+            List<byte[]> speechData = ByteUtils.subToSmallBytes(fileInputStream, 6400);
             oralEvaluator = new OralEvaluator(proxy, credential, request, listener);
             long currentTimeMillis = System.currentTimeMillis();
             oralEvaluator.start();
@@ -87,7 +88,7 @@ public class OralEvalDemo {
                 //发送数据
                 oralEvaluator.write(speechData.get(i));
                 //模拟音频间隔
-                Thread.sleep(20);
+                Thread.sleep(200);
             }
             currentTimeMillis = System.currentTimeMillis();
             oralEvaluator.stop();
