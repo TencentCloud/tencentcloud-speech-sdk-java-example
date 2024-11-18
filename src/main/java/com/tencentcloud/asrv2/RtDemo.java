@@ -88,11 +88,12 @@ public class RtDemo {
             for (int i = 0; i < speechData.size(); i++) {
                 //发送数据
                 speechRecognizer.write(speechData.get(i));
-                //模拟音频间隔
+                //注意：该行sleep代码用于模拟实时音频流1:1产生音频数据(每200ms产生200ms音频)，实际音频流场景建议删除该行代码，或业务根据自己的需求情况自行调整
                 Thread.sleep(20);
             }
             currentTimeMillis = System.currentTimeMillis();
             speechRecognizer.stop();
+            //speechRecognizer.stop(60000); //如果出现timeout错误，一般由于onRecognitionComplete回调存在耗时操作，建议耗时操作进行异步化处理或调整stop等待时间
             logger.info("speechRecognizer stop latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
 
         } catch (Exception e) {

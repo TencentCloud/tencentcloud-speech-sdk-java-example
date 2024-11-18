@@ -89,7 +89,7 @@ public class VoiceConversionDemo {
                 //发送数据
                 logger.info("voiceConverter send data : " + speechData.get(i).length);
                 voiceConverter.write(speechData.get(i));
-                //模拟音频间隔
+                //注意：该行sleep代码用于模拟实时音频流1:1产生音频数据(每200ms产生200ms音频)，实际音频流场景建议删除该行代码，或业务根据自己的需求情况自行调整
                 Thread.sleep(20);
             }
             currentTimeMillis = System.currentTimeMillis();
