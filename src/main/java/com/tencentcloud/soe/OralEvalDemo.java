@@ -31,10 +31,22 @@ public class OralEvalDemo {
         String secretKey = "your secretKey";
         // 只有临时秘钥鉴权需要
         String token = "";
-        process(appId, secretId, secretKey, token);
+        processStream(appId, secretId, secretKey, ""); //流式模式示例
+        process(appId, secretId, secretKey, "");//录音识别模式示例
         proxy.shutdown();
     }
 
+    /**
+     * 录音识别模式下可发送单个大长度分片(上限300s）
+     * 单次连接只能发一个分片,得到识别结果后需要关闭此条websocket连接，再次识别需要重新建立连接
+     * 录音识别模式适合已经存在完整录音文件数据需要一次性返回最终结果的场景
+     * 更推荐使用流式识别模式，流式识别可以相对更快的得到识别结果，有更可靠的实时率保障
+     *
+     * @param appId
+     * @param secretId
+     * @param secretKey
+     * @param token
+     */
     public static void process(String appId, String secretId, String secretKey, String token) {
         Credential credential = new Credential(appId, secretId, secretKey);
         credential.setToken(token);
@@ -47,9 +59,81 @@ public class OralEvalDemo {
         request.setKeyword("明月");
         request.setSentenceInfoEnabled(1);
         request.setRecMode(1);
-        request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
+        //voice_id为请求标识，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
+        request.setVoiceId(UUID.randomUUID().toString());
         // request.set("voice_id", UUID.randomUUID().toString()); //sdk暂未支持参数，可通过该方法设置
         logger.debug("voice_id:{}", request.getVoiceId());
+        OralEvaluationListener listener = new OralEvaluationListener() {//tips：回调方法中应该避免进行耗时操作，如果有耗时操作建议进行异步处理否则会影响websocket请求处理
+            @Override
+            public void OnIntermediateResults(OralEvaluationResponse response) {//评测中回调
+                logger.info("{} voice_id:{},{}", "OnIntermediateResults", response.getVoiceId(), new Gson().toJson(response));
+            }
+
+            @Override
+            public void onRecognitionStart(OralEvaluationResponse response) {//首包回调
+                logger.info("{} voice_id:{},{}", "onRecognitionStart", response.getVoiceId(), new Gson().toJson(response));
+            }
+
+            @Override
+            public void onRecognitionComplete(OralEvaluationResponse response) {//识别完成回调 即final=1
+                logger.info("{} voice_id:{},{}", "onRecognitionComplete", response.getVoiceId(), new Gson().toJson(response));
+            }
+
+            @Override
+            public void onFail(OralEvaluationResponse response) {//失败回调
+                logger.info("{} voice_id:{},{}", "onFail", response.getVoiceId(), new Gson().toJson(response));
+            }
+
+            @Override
+            public void onMessage(OralEvaluationResponse response) {//所有消息都会回调该方法
+                logger.info("{} voice_id:{},{}", "onMessage", response.getVoiceId(), new Gson().toJson(response));
+            }
+        };
+        OralEvaluator oralEvaluator = null;
+        try {
+            byte[] speechData = ByteUtils.inputStream2ByteArray(new File("test_wav/16k/16k.wav"));
+            oralEvaluator = new OralEvaluator(proxy, credential, request, listener);
+            long currentTimeMillis = System.currentTimeMillis();
+            oralEvaluator.start();
+            logger.info("OralEvalDemo start latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
+            //发送数据
+            oralEvaluator.write(speechData);
+            currentTimeMillis = System.currentTimeMillis();
+            oralEvaluator.stop(60 * 1000);
+            logger.info("OralEvalDemo stop latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            if (oralEvaluator != null) {
+                oralEvaluator.close(); //关闭连接
+            }
+        }
+    }
+
+    /**
+     * 流式识别模式，需要分片发送音频数据
+     *
+     * @param appId
+     * @param secretId
+     * @param secretKey
+     * @param token
+     */
+    public static void processStream(String appId, String secretId, String secretKey, String token) {
+        Credential credential = new Credential(appId, secretId, secretKey);
+        credential.setToken(token);
+        OralEvaluationRequest request = new OralEvaluationRequest();
+        request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
+        request.setVoiceFormat(1);
+        request.setRefText("明月");
+        request.setServerEngineType("16k_zh");
+        request.setScoreCoeff(4.0);
+        request.setEvalMode(3);
+        request.setTextMode(0);
+        request.setKeyword("expert,practice");
+        logger.debug("voice_id:{}", request.getVoiceId());
+        //request.setSentenceInfoEnabled(1);
+        // request.set("voice_id", UUID.randomUUID().toString()); //sdk暂未支持参数，可通过该方法设置
         OralEvaluationListener listener = new OralEvaluationListener() {//tips：回调方法中应该避免进行耗时操作，如果有耗时操作建议进行异步处理否则会影响websocket请求处理
             @Override
             public void OnIntermediateResults(OralEvaluationResponse response) {//评测中回调
@@ -91,7 +175,7 @@ public class OralEvalDemo {
                 Thread.sleep(200);
             }
             currentTimeMillis = System.currentTimeMillis();
-            oralEvaluator.stop();
+            oralEvaluator.stop(60 * 1000);
             logger.info("OralEvalDemo stop latency : " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
 
         } catch (Exception e) {
