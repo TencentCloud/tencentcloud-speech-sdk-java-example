@@ -31,7 +31,7 @@
             <groupId>com.tencentcloudapi</groupId>
             <artifactId>tencentcloud-speech-sdk-java</artifactId>
             <!--建议使用最新版本-->
-            <version>1.0.53</version>
+            <version>1.0.54</version>
         </dependency>
 
         <dependency>
@@ -43,13 +43,13 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.13</version>
         </dependency>
         <!-- 添加logback-core依赖 -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.13</version>
         </dependency>
 
         <!-- SpeechAsyncRecognizerExample示例依赖-->
