@@ -10,29 +10,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 实时语音合成websocket版本示例
  */
 public class TTSWsDemo {
 
-    static Logger logger = LoggerFactory.getLogger(TTSWsDemo.class);
-
     //SpeechClient应用全局创建一个即可,生命周期可和整个应用保持一致
     static SpeechClient proxy = new SpeechClient(TtsConstant.DEFAULT_TTS_REQ_URL);
+    //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
+    //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
+    static String appid = "";
+    static String secretId = "";
+    static String secretKey = "";
+    static Logger logger = LoggerFactory.getLogger(TTSWsDemo.class);
 
-    public static void main(String[] args) {
-        //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
-        //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
-        String appId = "your_appid";
-        String secretId = "your secretId";
-        String secretKey = "your secretKey";
-        process(appId, secretId, secretKey);
+    public static void main(String[] args) throws InterruptedException {
+        runConcurrency(1);
         proxy.shutdown();
     }
 
-    public static void process(String appId, String secretId, String secretKey) {
-        Credential credential = new Credential(appId, secretId, secretKey);
+    /**
+     * 并发
+     *
+     * @param client SpeechClient
+     * @param threadNum 线程数
+     * @throws InterruptedException InterruptedException
+     */
+    public static void runConcurrency(int threadNum) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(threadNum);
+        for (int i = 0; i < threadNum; i++) {
+            Thread.sleep(50);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    runOnce();
+                    latch.countDown();
+                }
+            }).start();
+        }
+        latch.await();
+    }
+
+    public static void runOnce() {
+        Credential credential = new Credential(appid, secretId, secretKey);
         SpeechSynthesizerRequest request = new SpeechSynthesizerRequest();
         request.setText("欢迎使用腾讯云语音合成**\n");
         request.setVoiceType(301036);
