@@ -83,7 +83,7 @@ public class RtV2Demo {
                         "onFail", response.getVoiceId(), response.getCode(), response.getMessage(), e.getMessage());
             }
         };
-        RealtimeRecognizerV2 recognizer = new RealtimeRecognizerV2(appid, credential, "16k_zh_en_vivo", listener);
+        RealtimeRecognizerV2 recognizer = new RealtimeRecognizerV2(appid, credential, "16k_zh_en_speaker", listener);
         recognizer.setVoiceFormat(RealtimeRecognizerV2.AUDIO_FORMAT_WAV);
         recognizer.setNeedVad(1);
         recognizer.setSentenceStrategy(1);

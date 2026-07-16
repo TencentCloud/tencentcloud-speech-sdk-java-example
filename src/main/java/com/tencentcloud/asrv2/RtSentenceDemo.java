@@ -72,7 +72,7 @@ public class RtSentenceDemo {
     public static void runOnce() {
         Credential credential = new Credential(appid, secretId, secretKey);
         SpeechRecognizerRequest request = SpeechRecognizerRequest.init();
-        request.setEngineModelType("16k_zh_en_vivo");
+        request.setEngineModelType("16k_zh_en_speaker");
         request.setVoiceFormat(12);
         request.setVoiceId(UUID.randomUUID().toString());//voice_id为请求标识，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
         request.setNeedVad(1);
