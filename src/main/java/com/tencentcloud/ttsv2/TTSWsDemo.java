@@ -13,18 +13,20 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * 实时语音合成websocket版本示例
+ * Real-time speech synthesis WebSocket version example
  */
 public class TTSWsDemo {
-
-    //SpeechClient应用全局创建一个即可,生命周期可和整个应用保持一致
-    static SpeechClient proxy = new SpeechClient(TtsConstant.DEFAULT_TTS_REQ_URL);
-    //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
-    //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
+    // View the account APPID on the Tencent Cloud Console [Account Information](https://console.cloud.tencent.com/developer) page, and obtain SecretID and SecretKey on the [Access Management](https://console.cloud.tencent.com/cam/capi) page.
+    // todo Before using this interface, you need to activate the service and replace the appId, secretId, and secretKey below with your own account information.
     static String appid = "";
     static String secretId = "";
     static String secretKey = "";
+    static String accountArea = "0"; // Account area: "0" (default, China account), "1" International account
     static Logger logger = LoggerFactory.getLogger(TTSWsDemo.class);
+
+    // SpeechClient only needs to be created once globally; its lifecycle can match the entire application
+    static SpeechClient proxy = new SpeechClient(
+            TtsConstant.ACCOUNT_AREA_INTERNATIONAL.equals(accountArea) ? TtsConstant.DEFAULT_TTS_INTL_REQ_URL : TtsConstant.DEFAULT_TTS_REQ_URL);
 
     public static void main(String[] args) throws InterruptedException {
         runConcurrency(1);
@@ -32,10 +34,10 @@ public class TTSWsDemo {
     }
 
     /**
-     * 并发
+     * Concurrency
      *
      * @param client SpeechClient
-     * @param threadNum 线程数
+     * @param threadNum thread count
      * @throws InterruptedException InterruptedException
      */
     public static void runConcurrency(int threadNum) throws InterruptedException {
@@ -56,8 +58,8 @@ public class TTSWsDemo {
     public static void runOnce() {
         Credential credential = new Credential(appid, secretId, secretKey);
         SpeechSynthesizerRequest request = new SpeechSynthesizerRequest();
-        request.setText("欢迎使用腾讯云语音合成**\n");
-        request.setVoiceType(301036);
+        request.setText("Welcome to Tencent Cloud Speech Synthesis**\n");
+        request.setVoiceType(101001);
         request.setVolume(0f);
         request.setSpeed(0f);
         request.setCodec("mp3");
@@ -65,10 +67,11 @@ public class TTSWsDemo {
         request.setEnableSubtitle(true);
         request.setEmotionCategory("happy");
         request.setEmotionIntensity(100);
-        request.setSessionId(UUID.randomUUID().toString());//sessionId，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
-        request.set("SegmentRate", 0); //sdk暂未支持参数，可通过该方法设置
+        request.setSessionId(UUID.randomUUID().toString()); // sessionId, must be globally unique (uuid is recommended). Provide this value when encountering problems to facilitate server-side troubleshooting
+        request.setAccountArea(accountArea);
+        request.set("SegmentRate", 0); // parameter not yet supported by the sdk, can be set via this method
         logger.debug("session_id:{}", request.getSessionId());
-        SpeechSynthesizerListener listener = new SpeechSynthesizerListener() {//tips：回调方法中应该避免进行耗时操作，如果有耗时操作建议进行异步处理否则会影响websocket请求处理
+        SpeechSynthesizerListener listener = new SpeechSynthesizerListener() { // tips: avoid time-consuming operations in callback methods. If there are time-consuming operations, it is recommended to handle them asynchronously, otherwise it will affect websocket request processing
             byte[] audio = new byte[0];
 
             @Override
@@ -104,7 +107,7 @@ public class TTSWsDemo {
                 logger.info("{} session_id:{},{}", "onSynthesisFail", response.getSessionId(), new Gson().toJson(response));
             }
         };
-        //synthesizer不可重复使用，每次合成需要重新生成新对象
+        // synthesizer cannot be reused; a new object must be created for each synthesis
         SpeechSynthesizer synthesizer = null;
         try {
             synthesizer = new SpeechSynthesizer(proxy, credential, request, listener);
@@ -119,7 +122,7 @@ public class TTSWsDemo {
             logger.error(e.getMessage());
         } finally {
             if (synthesizer != null) {
-                synthesizer.close(); //关闭连接
+                synthesizer.close(); // close connection
             }
         }
     }

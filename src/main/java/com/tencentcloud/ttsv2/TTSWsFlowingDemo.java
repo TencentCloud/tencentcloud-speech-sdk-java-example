@@ -17,22 +17,26 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * 本接口服务采用 websocket 协议，将请求文本合成为音频，同步返回合成音频数据及相关文本信息，达到“边合成边播放”的效果。
- * 在使用该接口前，需要 开通语音合成服务，并进入 API 密钥管理页面 新建密钥，生成 AppID、SecretID 和 SecretKey，用于 API 调用时生成签名，签名将用来进行接口鉴权。
+ * This interface service uses the websocket protocol to synthesize the requested text into audio,
+ * synchronously returning the synthesized audio data and related text information, achieving the effect of "synthesizing while playing".
+ * Before using this interface, you need to activate the speech synthesis service and create a key on the API key management page
+ * to generate AppID, SecretID, and SecretKey, which are used to generate signatures for API calls. The signature is used for interface authentication.
  */
 public class TTSWsFlowingDemo {
+    // View the account APPID on the Tencent Cloud Console [Account Information](https://console.cloud.tencent.com/developer) page, and obtain SecretID and SecretKey on the [Access Management](https://console.cloud.tencent.com/cam/capi) page.
+    // todo Before using this interface, you need to activate the service and replace the appId, secretId, and secretKey below with your own account information.
+    static String appid = "";
+    static String secretId = "";
+    static String secretKey = "";
+    static String accountArea = "0"; // Account area: "0" (default, China account), "1" International account
     static Logger logger = LoggerFactory.getLogger(TTSWsFlowingDemo.class);
 
-    //SpeechClient应用全局创建一个即可,生命周期可和整个应用保持一致
-    static SpeechClient proxy = new SpeechClient(TtsConstant.DEFAULT_TTS_V2_REQ_URL);
+    // SpeechClient only needs to be created once globally; its lifecycle can match the entire application
+    static SpeechClient proxy = new SpeechClient(
+            TtsConstant.ACCOUNT_AREA_INTERNATIONAL.equals(accountArea) ? TtsConstant.DEFAULT_TTS_V2_INTL_REQ_URL : TtsConstant.DEFAULT_TTS_V2_REQ_URL);
 
     public static void main(String[] args) throws IOException {
-        //在腾讯云控制台[账号信息](https://console.cloud.tencent.com/developer)页面查看账号APPID，[访问管理](https://console.cloud.tencent.com/cam/capi)页面获取 SecretID 和 SecretKey 。
-        //todo 在使用该接口前，需要开通该服务，并请将下面appId、secretId、secretKey替换为自己账号信息。
-        String appId = "your_appid";
-        String secretId = "your secretId";
-        String secretKey = "your secretKey";
-        process(appId, secretId, secretKey);
+        process(appid, secretId, secretKey);
         proxy.shutdown();
     }
 
@@ -43,14 +47,15 @@ public class TTSWsFlowingDemo {
         request.setSpeed(0f);
         request.setCodec("pcm");
         request.setSampleRate(16000);
-        request.setVoiceType(301032);
+        request.setVoiceType(101001);
         request.setEnableSubtitle(true);
         request.setEmotionCategory("neutral");
         request.setEmotionIntensity(100);
-        request.setSessionId(UUID.randomUUID().toString());//sessionId，需要保持全局唯一（推荐使用 uuid），遇到问题需要提供该值方便服务端排查
-        //request.set("SegmentRate", 1); //sdk暂未支持参数，可通过该方法设置
+        request.setSessionId(UUID.randomUUID().toString()); // sessionId, must be globally unique (uuid is recommended). Provide this value when encountering problems to facilitate server-side troubleshooting
+        request.setAccountArea(accountArea);
+        //request.set("SegmentRate", 1); // parameter not yet supported by the sdk, can be set via this method
         logger.debug("session_id:{}", request.getSessionId());
-        FlowingSpeechSynthesizerListener listener = new FlowingSpeechSynthesizerListener() {//tips：回调方法中应该避免进行耗时操作，如果有耗时操作建议进行异步处理否则会影响websocket请求处理
+        FlowingSpeechSynthesizerListener listener = new FlowingSpeechSynthesizerListener() { // tips: avoid time-consuming operations in callback methods. If there are time-consuming operations, it is recommended to handle them asynchronously, otherwise it will affect websocket request processing
             byte[] audio = new byte[0];
 
             @Override
@@ -88,28 +93,28 @@ public class TTSWsFlowingDemo {
             }
 
             /**
-             * 错误回调 当发生错误时回调该方法
-             * @param response 响应
+             * Error callback; invoked when an error occurs
+             * @param response response
              */
             @Override
             public void onSynthesisFail(SpeechSynthesizerResponse response) {
                 logger.info("{} session_id:{},{}", "onSynthesisFail", response.getSessionId(), new Gson().toJson(response));
             }
         };
-        //synthesizer不可重复使用，每次合成需要重新生成新对象
+        // synthesizer cannot be reused; a new object must be created for each synthesis
         FlowingSpeechSynthesizer synthesizer = null;
-        String[] texts = {"五位壮士一面向顶峰攀登，一面依托大树和",
-                "岩石向敌人射击。山路上又留下了许多具敌",
-                "人的尸体。到了狼牙山峰顶，五壮士居高临",
-                "下，继续向紧跟在身后的敌人射击。不少敌人",
-                "坠落山涧，粉身碎骨。班长马宝玉负伤了，子",
-                "弹都打完了，只有胡福才手里还剩下一颗手榴",
-                "弹，他刚要拧开盖子，马宝玉抢前一步，夺过",
-                "手榴弹插在腰间，他猛地举起一块磨盘大的石",
-                "头，大声喊道：“同志们！用石头砸！”顿时，",
-                "石头像雹子一样，带着五位壮士的决心，带着",
-                "中国人民的仇恨，向敌人头上砸去。山坡上传",
-                "来一阵叽里呱啦的叫声，敌人纷纷滚落深谷。"
+        String[] texts = {"On the Mountain of Flowers and Fruit there was ",
+                "a magic stone that had absorbed the essence of ",
+                "Heaven and Earth for countless ages. One day ",
+                "the stone split open and a stone monkey leaped ",
+                "forth, bowing to the four quarters. He became ",
+                "the Handsome Monkey King, ruler of all apes. ",
+                "Seeking immortality, he crossed the seas and ",
+                "learned the Seventy-Two Transformations, and the ",
+                "somersault cloud that carried him a hundred and ",
+                "eight thousand li in a single leap. Wielding the ",
+                "Golden-Hooped Rod, he made havoc in Heaven, until ",
+                "the Buddha pressed him beneath the Five Elements Mountain. "
         };
         try {
             synthesizer = new FlowingSpeechSynthesizer(proxy, credential, request, listener);
@@ -127,7 +132,7 @@ public class TTSWsFlowingDemo {
             logger.error(e.getMessage());
         } finally {
             if (synthesizer != null) {
-                synthesizer.close(); //关闭连接
+                synthesizer.close(); // close connection
             }
         }
     }
